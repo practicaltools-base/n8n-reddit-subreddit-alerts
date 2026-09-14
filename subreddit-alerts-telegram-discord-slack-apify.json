@@ -1,0 +1,491 @@
+{
+  "name": "Get alerts for new posts in any subreddit in Telegram, Discord or Slack with Apify",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1 · Trigger\nRuns hourly, or once by hand to test.",
+        "height": 520,
+        "width": 520,
+        "color": 7
+      },
+      "name": "Section: Trigger",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2 · Reddit feed\nOne Apify node fetches the newest posts from every subreddit you listed. No Reddit account or API app needed.",
+        "height": 520,
+        "width": 380,
+        "color": 7
+      },
+      "name": "Section: Reddit feed",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3 · Filtering\nDrop posts seen before, then apply your optional keyword, author and NSFW filters.",
+        "height": 520,
+        "width": 700,
+        "color": 7
+      },
+      "name": "Section: Filtering",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4 · Delivery",
+        "height": 700,
+        "width": 520,
+        "color": 7
+      },
+      "name": "Section: Delivery",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Get alerts for new posts in any subreddit in Telegram, Discord or Slack with Apify\n\n**Who it's for:** community managers, founders, traders, researchers and hobbyists who want to see new posts from specific subreddits the moment they appear — in the chat app they already have open — **without registering a Reddit API app**.\n\n### How it works\n1. Runs every hour (or once by hand to test).\n2. *Configure Subreddits & Channels* holds the subreddits to watch, optional keyword and author filters, and your chat destinations — the only node you edit.\n3. *Fetch New Subreddit Posts* runs the Apify **Fast Reddit Scraper** on each subreddit's *new* feed for the last hour.\n4. *Skip Already-Seen Posts* remembers every post ID (n8n's own database, capped at 10,000), so a post is alerted once even if Reddit shows it twice.\n5. *Keep Matching Posts* applies your optional filters: only titles containing a keyword, skip authors, skip NSFW.\n6. *Send Alert to Telegram* posts one message per new post. Discord and Slack branches are included, disabled.\n\n### Setup steps\n1. **Apify** – open *Fetch New Subreddit Posts*. If you see **Install**, click it (workspace owner only on n8n Cloud). Add an *Apify API key* credential — free at console.apify.com → Settings → Integrations.\n2. **Subreddits** – open *Configure Subreddits & Channels* and set `subreddits` (comma-separated, without r/) and your Telegram chat ID.\n3. **Test** – click **Execute workflow** (either trigger is fine). The newest posts appear in the output of the Apify node before anything else is connected.\n4. **Telegram** – add a Telegram bot credential to *Send Alert to Telegram* (create a bot with @BotFather, add it to your chat).\n5. **Activate** the workflow.\n\n### Customization\nPrefer Discord or Slack? Enable that branch, delete the rest. Want faster alerts? Set the trigger to every 30 minutes and `lookback` to `hour` stays correct. Add a keyword in `only_if_title_contains` to turn a busy subreddit into a focused alert.",
+        "height": 900,
+        "width": 760,
+        "color": 1
+      },
+      "name": "Main note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 💸 Cost\nThe Fast Reddit Scraper charges **per post returned** (about $0.004 on Apify's free plan, $0.003 on paid) and nothing per run. Because each run only asks for the last hour of posts, you pay for what actually gets alerted:\n\n- A subreddit with ~20 new posts/day ≈ **$2.40/month** — inside Apify's free $5 credit.\n- ~100 posts/day ≈ $12/month — needs a paid Apify plan.\n\n`max_posts_per_run` (default 25) caps the worst case at 25 × $0.004 = $0.10 per run.",
+        "height": 280,
+        "width": 500,
+        "color": 3
+      },
+      "name": "Cost note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### ⚠️ Testing twice returns 0 items\n*Skip Already-Seen Posts* remembers every post it has passed on — in n8n's own database, shared across workers, capped at 10,000 entries. A second test run shows nothing new — that's correct, not broken. To reset, open the node and run *Clear Deduplication History*.",
+        "height": 200,
+        "width": 500,
+        "color": 3
+      },
+      "name": "Dedup note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -340
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### ⏱ Schedule and lookback\nThe trigger runs hourly and the Apify node fetches posts from the last **hour**. Keep those two aligned: if you change the trigger to every 30 minutes that's fine (overlap just costs dedup nothing); if you change it to every 6 hours, set `lookback` to `day` or you'll miss posts.",
+        "height": 220,
+        "width": 500,
+        "color": 5
+      },
+      "name": "Timing note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 📣 Pick your channel\nEnable the branch you use and delete the rest. Telegram is on by default; Discord (webhook) and Slack ship disabled. Each reads its destination from *Configure Subreddits & Channels*.",
+        "height": 200,
+        "width": 520,
+        "color": 5
+      },
+      "name": "Delivery note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        80
+      ]
+    },
+    {
+      "parameters": {},
+      "name": "Run Once to Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "subreddits",
+              "type": "string",
+              "value": "n8n, automation"
+            },
+            {
+              "id": "s2",
+              "name": "lookback",
+              "type": "string",
+              "value": "hour"
+            },
+            {
+              "id": "s3",
+              "name": "max_posts_per_run",
+              "type": "number",
+              "value": 25
+            },
+            {
+              "id": "s4",
+              "name": "only_if_title_contains",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "s5",
+              "name": "skip_authors",
+              "type": "string",
+              "value": "AutoModerator"
+            },
+            {
+              "id": "s6",
+              "name": "skip_nsfw",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "s7",
+              "name": "telegram_chat_id",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "s8",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "#reddit-alerts"
+            }
+          ]
+        }
+      },
+      "name": "Configure Subreddits & Channels",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        530
+      ],
+      "notesInFlow": true,
+      "notes": "Subreddits without r/, comma-separated. Filters are optional."
+    },
+    {
+      "parameters": {
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "actorSource": "store",
+        "actorId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "bYDdgZhOyVinvqrRI",
+          "cachedResultUrl": "https://console.apify.com/actors/bYDdgZhOyVinvqrRI/input",
+          "cachedResultName": "Fast Reddit Scraper ($2/1k): Cheap & Bulk Data (practicaltools/apify-reddit-api)"
+        },
+        "customBody": "={{ JSON.stringify({\n  startUrls: String($json.subreddits || '').split(',').map(s => s.trim().replace(/^r\\//i, '')).filter(Boolean).map(s => ({ url: 'https://www.reddit.com/r/' + s + '/' })),\n  sort: 'new',\n  time: ['hour','day','week'].includes($json.lookback) ? $json.lookback : 'hour',\n  maxItems: Number($json.max_posts_per_run) || 25,\n  skipCommunity: true,\n  searchPosts: true,\n  searchComments: false,\n  fetchPostComments: false,\n  includeNSFW: !$json.skip_nsfw\n}) }}",
+        "timeout": 300,
+        "memory": 512,
+        "maxTotalChargeUsd": 0.5,
+        "build": ""
+      },
+      "name": "Fetch New Subreddit Posts",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        620,
+        530
+      ],
+      "notesInFlow": true,
+      "notes": "Click Install if prompted, then add your Apify API key credential."
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "logic": "removeItemsWithAlreadySeenKeyValues",
+        "dedupeValue": "={{ $json.id || $json.url }}",
+        "options": {}
+      },
+      "name": "Skip Already-Seen Posts",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        530
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f0",
+              "leftValue": "={{ ($json.dataType || \"post\") === \"post\" && !$json.isAd }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f1",
+              "leftValue": "={{ !String($('Configure Subreddits & Channels').first().json.only_if_title_contains || '').trim() || String($('Configure Subreddits & Channels').first().json.only_if_title_contains).split(',').map(k => k.trim().toLowerCase()).filter(Boolean).some(k => ((($json.title || '') + ' ' + ($json.body || '')).toLowerCase()).includes(k)) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f2",
+              "leftValue": "={{ !String($('Configure Subreddits & Channels').first().json.skip_authors || '').split(',').map(a => a.trim().toLowerCase().replace(/^u\\//, '')).filter(Boolean).includes(String($json.username || '').toLowerCase()) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f3",
+              "leftValue": "={{ !($('Configure Subreddits & Channels').first().json.skip_nsfw && $json.over18) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Keep Matching Posts",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1240,
+        530
+      ],
+      "notesInFlow": true,
+      "notes": "Optional keyword, author and NSFW filters from the settings node."
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Configure Subreddits & Channels').first().json.telegram_chat_id }}",
+        "text": "={{ '🆕 <b>' + ($json.parsedCommunityName ? 'r/' + $json.parsedCommunityName : ($json.communityName || 'Reddit')) + '</b> · ' + ($json.upVotes || 0) + ' ↑ · ' + ($json.numberOfComments || 0) + ' 💬\\n<b>' + String($json.title || '').replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</b>\\n' + String($json.body || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').slice(0, 300) + (String($json.body || '').length > 300 ? '…' : '') + '\\n<a href=\"' + $json.url + '\">Open post</a> · u/' + ($json.username || '') }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "name": "Send Alert to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1720,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "resource": "message",
+        "operation": "send",
+        "content": "={{ '🆕 **' + ($json.parsedCommunityName ? 'r/' + $json.parsedCommunityName : ($json.communityName || 'Reddit')) + '** · ' + ($json.upVotes || 0) + ' upvotes · ' + ($json.numberOfComments || 0) + ' comments\\n**' + ($json.title || '') + '**\\n' + String($json.body || '').slice(0, 300) + '\\n' + $json.url }}",
+        "options": {}
+      },
+      "name": "Send Alert to Discord",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        620
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Configure Subreddits & Channels').first().json.slack_channel }}"
+        },
+        "text": "={{ ':new: *' + ($json.parsedCommunityName ? 'r/' + $json.parsedCommunityName : ($json.communityName || 'Reddit')) + '* · ' + ($json.upVotes || 0) + ' upvotes · ' + ($json.numberOfComments || 0) + ' comments\\n*' + ($json.title || '') + '*\\n' + String($json.body || '').slice(0, 300) + '\\n<' + $json.url + '|Open post> · u/' + ($json.username || '') }}",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "name": "Send Alert to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1720,
+        820
+      ],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Run Once to Test": {
+      "main": [
+        [
+          {
+            "node": "Configure Subreddits & Channels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Configure Subreddits & Channels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Subreddits & Channels": {
+      "main": [
+        [
+          {
+            "node": "Fetch New Subreddit Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch New Subreddit Posts": {
+      "main": [
+        [
+          {
+            "node": "Skip Already-Seen Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip Already-Seen Posts": {
+      "main": [
+        [
+          {
+            "node": "Keep Matching Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Matching Posts": {
+      "main": [
+        [
+          {
+            "node": "Send Alert to Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Alert to Discord",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Alert to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
